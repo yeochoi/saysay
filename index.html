@@ -281,7 +281,7 @@ select {
 .first { position: fixed; inset: 0; z-index: 40; background: var(--bg); overflow-y: auto; }
 .first[hidden] { display: none; }
 .first-in { max-width: 480px; min-height: 100%; margin: 0 auto; padding: calc(var(--top) + 48px) var(--gutter) calc(var(--bottom) + 24px); display: flex; flex-direction: column; }
-.first-top img { border-radius: 13px; display: block; margin-bottom: 24px; }
+.first-name { font-family: var(--font-mark); font-weight: 700; font-size: 20px; line-height: 28px; color: var(--ink); margin-bottom: 20px; }
 .first-title { margin: 6px 0 24px; font-size: 34px; line-height: 40px; font-weight: 600; letter-spacing: -0.02em; }
 .first-list { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
 .first-foot { margin-top: auto; padding-top: 24px; }
@@ -551,8 +551,7 @@ select {
 <!-- First open -->
 <div class="first" id="first" hidden>
   <div class="first-in">
-    <div class="first-top"><img src="icon.svg" alt="" width="56" height="56"></div>
-    <div class="small" style="color:var(--muted)">Welcome to SaySay</div>
+    <div class="first-name">SaySay</div>
     <h2 class="first-title">What do you want to practice?</h2>
     <div class="first-list" id="firstList"></div>
     <div class="list-note" style="padding-left:0">You can switch any time with the language button at the top.</div>
