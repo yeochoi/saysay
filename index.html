@@ -270,6 +270,13 @@ select {
 .text-btn { border: 0; background: none; font-family: inherit; font-size: 17px; line-height: 22px; font-weight: 600; color: var(--warn-text); padding: 11px 16px; min-height: 44px; border-radius: 12px; }
 .text-btn:disabled { color: var(--chevron); cursor: default; }
 .text-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.imp-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-top: 1px solid var(--line); }
+.imp-row:first-child { border-top: 0; }
+.imp-row b { display: block; font-size: 17px; line-height: 22px; font-weight: 600; }
+.imp-row b:lang(zh) { font-family: var(--font-mark); font-weight: 500; }
+.imp-row small { display: block; font-size: 13px; line-height: 18px; color: var(--muted); margin-top: 2px; }
+.imp-row .new { font-size: 17px; color: var(--accent-text); font-weight: 600; white-space: nowrap; }
+.imp-row .new.none { color: var(--muted); font-weight: 400; }
 .act-s { font-size: 13px; line-height: 19px; color: var(--muted); }
 .voice-tip { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--bg); font-size: 13px; line-height: 19px; color: var(--muted); }
 .warn { margin-top: 12px; font-size: 13px; line-height: 19px; color: var(--warn-text); }
@@ -288,7 +295,9 @@ select {
 .first-name { font-family: var(--font-mark); font-weight: 700; font-size: 20px; line-height: 28px; color: var(--ink); margin-bottom: 20px; }
 .first-title { margin: 6px 0 24px; font-size: 34px; line-height: 40px; font-weight: 600; letter-spacing: -0.02em; }
 .first-list { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-.first-foot { margin-top: auto; padding-top: 24px; }
+.first-foot { margin-top: auto; padding-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.first-import { border: 0; background: none; font-family: inherit; font-size: 17px; color: var(--accent-text); padding: 12px 16px; min-height: 44px; }
+#importSheet { z-index: 50; }
 /* People who turn off motion get no pulsing, sliding or fading. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
@@ -451,6 +460,13 @@ select {
         </div>
       </div>
       <div class="list-note">Each sentence plays as many times as you choose, then pauses so you can repeat it.</div>
+      <div class="section">Backup</div>
+      <div class="card">
+        <button class="act-row" id="exportBtn"><span class="act-t">Export sentences</span><span class="act-s">Saves Practice and Learned in every language as one file</span></button>
+        <button class="act-row" id="importBtn"><span class="act-t">Import sentences</span><span class="act-s">Adds sentences from a SaySay file</span></button>
+      </div>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+      <div class="list-note">Your sentences live only in this browser. Export now and then so you never lose them.</div>
       <div class="section">About</div>
       <div class="card">
         <button class="link-row" id="openDs">Design system<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
@@ -544,6 +560,22 @@ select {
   </div>
 </div>
 
+<!-- Import sheet -->
+<div class="sheet-wrap" id="importSheet">
+  <div class="sheet">
+    <div class="sheet-head">
+      <button class="navbtn" data-close aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="sheet-title">Import sentences</div><div></div>
+    </div>
+    <div class="sheet-body">
+      <div class="small" id="importFrom" style="color:var(--muted);padding:8px 4px 12px"></div>
+      <div class="card" id="importList"></div>
+      <div class="list-note">Sentences you already have are skipped. Learned ones stay learned. Nothing is removed.</div>
+    </div>
+    <div class="sheet-foot"><button class="btn" id="importAdd">Add</button></div>
+  </div>
+</div>
+
 <!-- Language sheet -->
 <div class="sheet-wrap" id="langSheet">
   <div class="sheet">
@@ -565,7 +597,7 @@ select {
     <h2 class="first-title">What do you want to practice?</h2>
     <div class="first-list" id="firstList"></div>
     <div class="list-note" style="padding-left:0">You can switch any time with the language button at the top.</div>
-    <div class="first-foot"><button class="btn" id="firstStart" disabled>Start</button></div>
+    <div class="first-foot"><button class="btn" id="firstStart" disabled>Start</button><button class="first-import" id="firstImport">Have a backup? Import it</button></div>
   </div>
 </div>
 
@@ -1069,6 +1101,78 @@ $('deleteAll').onclick = () => {
 $('repeatSeg').onclick = (e) => { const b = e.target.closest('button'); if (b) { state.repeat = +b.dataset.v; syncSeg('repeatSeg', state.repeat); save(); } };
 $('speedSeg').onclick = (e) => { const b = e.target.closest('button'); if (b) { state.rate = +b.dataset.v; syncSeg('speedSeg', state.rate); save(); } };
 $('pauseSeg').onclick = (e) => { const b = e.target.closest('button'); if (b) { state.pause = +b.dataset.v; syncSeg('pauseSeg', state.pause); save(); } };
+
+/* Backup. One file holds every language, Practice and Learned, with translations. Playback settings stay on the device. */
+function backupData() {
+  const languages = {};
+  for (const k of Object.keys(LANGS)) if (Array.isArray(state.lists[k]) && state.lists[k].length) languages[k] = state.lists[k];
+  return { app: 'SaySay', version: 1, exported: new Date().toISOString(), practicing: state.lang, languages };
+}
+const countAll = (langs) => Object.values(langs).reduce((n, l) => n + l.length, 0);
+$('exportBtn').onclick = async () => {
+  const data = backupData(), n = countAll(data.languages);
+  if (!n) return showToast('No sentences to export yet');
+  const name = `saysay-${new Date().toISOString().slice(0, 10)}.json`;
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const file = new File([blob], name, { type: 'application/json' });
+  // On phones the share sheet lets you save to Files or send it to yourself. Elsewhere it downloads.
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [file] }) && /iPhone|iPad|Android/i.test(navigator.userAgent)) {
+      await navigator.share({ files: [file], title: 'SaySay sentences' });
+      return showToast(`Exported ${n} sentences`);
+    }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  showToast(`Exported ${n} sentences`);
+};
+let pending = null, pendingLang = null;
+$('importBtn').onclick = () => { $('importFile').value = ''; $('importFile').click(); };
+$('firstImport').onclick = () => { $('importFile').value = ''; $('importFile').click(); };
+$('importFile').onchange = async () => {
+  const f = $('importFile').files[0]; if (!f) return;
+  let data;
+  try { data = JSON.parse(await f.text()); } catch (e) { data = null; }
+  const ok = data && data.languages && typeof data.languages === 'object';
+  if (!ok) return showToast('That file is not a SaySay backup');
+  // Work out what is new before changing anything.
+  const plan = {};
+  for (const [k, list] of Object.entries(data.languages)) {
+    if (!LANGS[k] || !Array.isArray(list)) continue;
+    const have = new Set((state.lists[k] || []).map((s) => s.h));
+    const clean = list.filter((s) => s && typeof s.h === 'string' && s.h.trim());
+    // Skip sentences you already have, and repeats inside the file.
+    const fresh = [];
+    for (const s of clean) { if (!have.has(s.h)) { have.add(s.h); fresh.push(s); } }
+    plan[k] = { total: clean.length, fresh };
+  }
+  const langs = Object.keys(plan);
+  if (!langs.length) return showToast('That file is not a SaySay backup');
+  pending = plan; pendingLang = LANGS[data.practicing] ? data.practicing : langs[0];
+  const when = data.exported ? new Date(data.exported) : null;
+  $('importFrom').textContent = `${f.name}${when && !isNaN(when) ? `, exported ${when.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : ''}`;
+  $('importList').innerHTML = langs.map((k) => {
+    const p = plan[k], n = p.fresh.length, learnedN = p.fresh.filter((s) => s.l).length;
+    return `<div class="imp-row"><span><b lang="${LANGS[k].html}">${LANGS[k].name}</b><small>${p.total} in the file${learnedN ? `, ${learnedN} learned` : ''}</small></span><span class="new ${n ? '' : 'none'}">${n ? `${n} new` : 'All added'}</span></div>`;
+  }).join('');
+  const total = langs.reduce((a, k) => a + plan[k].fresh.length, 0);
+  $('importAdd').disabled = !total;
+  $('importAdd').textContent = total ? `Add ${total} sentence${total === 1 ? '' : 's'}` : 'Nothing new to add';
+  close('setSheet'); open('importSheet');
+};
+$('importAdd').onclick = () => {
+  if (!pending) return;
+  let total = 0;
+  for (const [k, p] of Object.entries(pending)) {
+    if (!Array.isArray(state.lists[k])) state.lists[k] = [];
+    const add = p.fresh.map((s) => { const c = { h: s.h }; ['p', 'e', 'tl', 'tr', 'l'].forEach((key) => { if (s[key] !== undefined) c[key] = s[key]; }); return c; });
+    state.lists[k].push(...add); total += add.length;
+  }
+  pending = null; stop(); close('importSheet');
+  // From first open, SaySay opens on the language the backup was practicing.
+  if (!LANGS[state.lang]) { $('first').hidden = true; setLang(pendingLang); } else render();
+  showToast(`Added ${total} sentence${total === 1 ? '' : 's'}`);
+};
 
 /* Design system, opened from Settings. Colours are read from tokens.css, so they always match. */
 const DS_COLORS = [['Primary','primary'],['Accent text','accent-text'],['Soft','soft'],['Current','current'],['Background','bg'],['Surface','surface'],['Ink','ink'],['Muted','muted'],['Line','line'],['Chip','chip'],['Chevron','chevron'],['Warn text','warn-text'],['Backdrop','backdrop']];
