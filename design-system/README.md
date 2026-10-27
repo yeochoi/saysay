@@ -79,7 +79,7 @@ Rules
 - Every round button is the same flat grey circle. `chip`, 44 wide, a 20 icon with a 2 line in `ink`. A disabled button keeps its circle and only fades its icon to `chevron`.
 - Destructive actions always go last. A single one is plain red text, centered. Two or more related ones are grouped in one card. They always ask first.
 - Sheets have one rule. Top left leaves. × closes a first screen, ‹ goes back one step. The bottom holds one forward action, like Add sentence or Add. Settings has no bottom button, changes save as you tap.
-- Settings starts with Language, then Playback with Listen, Speed, Time to repeat and Voice, then About and the sentence actions for the current language.
+- Settings starts with Language, then Playback with Listen, Speed, Time to repeat and Voice, then Backup, About and the sentence actions for the current language.
 - On laptops sheets open in the middle over a dimmed page.
 
 ## Practice
@@ -99,6 +99,15 @@ Rules
 - Pinyin fills in on the phone as you type. The translation comes from the free MyMemory service a moment later. Both stay editable, and once you type in a field yourself SaySay stops filling it.
 - Edit on the card, or the pencil on a row, opens Edit sentence with Save, and Delete sentence below.
 - Settings has Start over and Delete all sentences for the current language. Each says how many it affects, and both ask first.
+
+## Backup
+
+- Sentences live only in the browser, so Settings has a Backup section with Export sentences and Import sentences, and a note to export now and then.
+- Export saves one file, like saysay-2026-10-27.json, with every language, Practice and Learned, translations and the language you were practicing. Speed, voice and other playback settings stay on the device. On phones it opens the share sheet, elsewhere it downloads.
+- Import never changes anything until you confirm. It shows the file name and date, then one row per language with how many are in the file and how many are new. The button says what will happen, like Add 44 sentences.
+- Import adds, it never removes. Sentences you already have are skipped, learned ones stay learned. A file that is not a SaySay backup gets a calm toast and nothing changes.
+- First open has a quiet Have a backup? Import it link under Start. After importing it opens on the language the backup was practicing.
+- A backup restores every language at once, because it is mostly used after something went wrong.
 
 ## Icon
 
