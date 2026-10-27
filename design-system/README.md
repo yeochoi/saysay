@@ -79,13 +79,13 @@ Rules
 - Every round button is the same flat grey circle. `chip`, 44 wide, a 20 icon with a 2 line in `ink`. A disabled button keeps its circle and only fades its icon to `chevron`.
 - Destructive actions always go last. A single one is plain red text, centered. Two or more related ones are grouped in one card. They always ask first.
 - Sheets have one rule. Top left leaves. × closes a first screen, ‹ goes back one step. The bottom holds one forward action, like Add sentence or Add. Settings has no bottom button, changes save as you tap.
-- Settings starts with Language, then Playback, About and the sentence actions for the current language.
+- Settings starts with Language, then Playback with Listen, Speed, Time to repeat and Voice, then About and the sentence actions for the current language.
 - On laptops sheets open in the middle over a dimmed page.
 
 ## Practice
 
-- Play reads each sentence twice, then pauses for the time chosen in Settings, then moves on. It stops at the end of the list.
-- The pill on the card says where you are. Listen, Listen again, then Your turn in solid terracotta.
+- Play reads each sentence as many times as chosen in Listen, once, twice or 3 times, then pauses for the time chosen in Settings, then moves on. Twice is the default. It stops at the end of the list.
+- The pill on the card says where you are. While listening it shows one dot per listen, filled for done and pulsing for now, then Your turn in solid terracotta. With Once there are no dots.
 - Previous and next keep playing if Play was on.
 - Got it moves the sentence to Learned and shows a toast with Undo for 4 seconds.
 - SaySay opens on the language and sentence you were on last time.
