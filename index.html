@@ -80,10 +80,7 @@ svg { display: block; }
 .brand { display: flex; align-items: baseline; gap: 8px; }
 .brand { align-items: center; gap: 10px; }
 .brand b { font-family: var(--font-mark); font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
-/* The language you are practicing, next to the name. Tap it to switch. */
-.lang-pill { height: 32px; padding: 0 10px 0 12px; border: 0; border-radius: 999px; background: var(--soft); color: var(--accent-text); font: 600 15px var(--font-sans); display: inline-flex; align-items: center; gap: 6px; }
-.lang-pill svg { width: 12px; height: 12px; }
-.top-actions { gap: 6px; }
+.top-actions { gap: 8px; }
 .top-actions { display: flex; gap: 8px; }
 .round {
   width: 44px; height: 44px; border-radius: 999px; border: 0;
@@ -321,7 +318,7 @@ select {
 <header class="hero" id="hero">
   <div class="wrap">
     <div class="top">
-      <div class="brand"><h1 style="margin:0;font-size:inherit"><b>SaySay</b></h1><button class="lang-pill" id="langPill" aria-label="Change language"><span id="langPillText">中文</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button></div>
+      <div class="brand"><h1 style="margin:0;font-size:inherit"><b>SaySay</b></h1></div>
       <div class="top-actions">
         <button class="round" id="quickAdd" aria-label="Add sentence">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -552,7 +549,7 @@ select {
         <div class="rule">Top left leaves a sheet. × closes it, ‹ goes back one step. The bottom holds one forward action.</div>
         <div class="rule">Cards only for controls and lists. White with a 1px line and radius 16. No shadows.</div>
         <div class="rule">Every round button is one flat grey circle, 44 wide, with a 20 icon. Disabled only fades the icon.</div>
-        <div class="rule">One language at a time. The pill shows which, and each language keeps its own sentences and progress.</div>
+        <div class="rule">One language at a time. Switch in Settings under Practicing. Each language keeps its own sentences and progress.</div>
         <div class="rule">Five text styles, like iOS. 34, 20, 17 semibold, 17 regular, 13 regular. The same across the apps.</div>
       </div>
       <div style="height:8px"></div>
@@ -580,7 +577,7 @@ select {
 <div class="sheet-wrap" id="langSheet">
   <div class="sheet">
     <div class="sheet-head">
-      <button class="navbtn" data-close aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="navbtn" id="langBack" aria-label="Back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
       <div class="sheet-title">Language</div><div></div>
     </div>
     <div class="sheet-body">
@@ -596,7 +593,7 @@ select {
     <div class="first-name">SaySay</div>
     <h2 class="first-title">What do you want to practice?</h2>
     <div class="first-list" id="firstList"></div>
-    <div class="list-note" style="padding-left:0">You can switch any time with the language button at the top.</div>
+    <div class="list-note" style="padding-left:0">You can switch any time in Settings.</div>
     <div class="first-foot"><button class="btn" id="firstStart" disabled>Start</button><button class="first-import" id="firstImport">Have a backup? Import it</button></div>
   </div>
 </div>
@@ -708,8 +705,6 @@ function syncIdx() { idx = Math.max(0, practice().findIndex((s) => s.h === state
 function render() {
   document.body.classList.toggle('lang-es', state.lang === 'es');
   document.body.classList.toggle('lang-zh', state.lang === 'zh');
-  $('langPillText').textContent = L().name;
-  $('langPillText').lang = L().html;
   $('han').lang = L().html;
   const list = practice();
   if (idx >= list.length) idx = Math.max(0, list.length - 1);
@@ -871,7 +866,7 @@ function hideToast() { $('toast').classList.remove('on'); }
 function open(id) { hideToast(); $(id).classList.add('on'); }
 function close(id) { $(id).classList.remove('on'); }
 document.querySelectorAll('.sheet-wrap').forEach((w) => {
-  w.addEventListener('click', (e) => { if (e.target === w || e.target.closest('[data-close]')) { if (w.id === 'addSheet') closeForm(); else close(w.id); } });
+  w.addEventListener('click', (e) => { if (e.target === w || e.target.closest('[data-close]')) { if (w.id === 'addSheet') closeForm(); else if (w.id === 'langSheet') $('langBack').click(); else close(w.id); } });
 });
 
 /* Languages. The pill, the Practicing row and first open all use the same list. */
@@ -886,8 +881,8 @@ function setLang(lang) {
   loadVoices(); render();
 }
 function openLang() { $('langList').innerHTML = langOptions(state.lang); open('langSheet'); }
-$('langPill').onclick = openLang;
 $('openLang').onclick = () => { close('setSheet'); openLang(); };
+$('langBack').onclick = () => { close('langSheet'); renderLangSettings(); renderResets(); open('setSheet'); };
 $('langList').onclick = (e) => {
   const b = e.target.closest('[data-lang]'); if (!b) return;
   const changed = b.dataset.lang !== state.lang;
@@ -1192,6 +1187,7 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
     if (openSheet.id === 'addSheet') closeForm();
     else if (openSheet.id === 'dsSheet') $('dsBack').click();
+    else if (openSheet.id === 'langSheet') $('langBack').click();
     else close(openSheet.id);
     return;
   }

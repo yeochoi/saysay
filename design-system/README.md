@@ -6,7 +6,7 @@ Say it, then say it back. A calm shadowing app for more than one language, start
 
 1. **One language, one sentence at a time.** The screen holds the sentence you are saying now, in the language you chose. The list, settings and forms wait in sheets.
 2. **Eyes on the words, thumb on Play.** The sentence card is always the same height, so Play, previous, next and Got it never move. You can tap them without looking.
-3. **Terracotta acts, everything else is quiet.** Terracotta is for Play, Got it, pinyin, the language pill and what you are on. Ink, muted and the warm white carry the rest.
+3. **Terracotta acts, everything else is quiet.** Terracotta is for Play, Got it, pinyin and what you are on. Ink, muted and the warm white carry the rest.
 4. **Nothing is lost.** Got it moves a sentence, it does not delete it. Undo stays for a few seconds. Only delete removes sentences, and it always asks first. Each language keeps its own sentences and progress.
 5. **One way to do each thing.** Top left always closes a sheet, the bottom holds the one forward action.
 
@@ -14,7 +14,7 @@ Say it, then say it back. A calm shadowing app for more than one language, start
 
 | Role | Tokens | Use |
 | --- | --- | --- |
-| Action | `primary`, `accent-text`, `soft` | Play, Add, Got it, pinyin, the language pill, the status pill, the selected segment |
+| Action | `primary`, `accent-text`, `soft` | Play, Add, Got it, pinyin, the status pill, the selected segment |
 | Current | `current` | The sentence you are on in the list, the chosen language |
 | Ground | `bg`, `surface`, `line` | Screens, cards, dividers |
 | Text | `ink`, `muted` | Sentences, translations, labels and notes |
@@ -65,7 +65,7 @@ Rules
 ## Languages
 
 - First open asks one question, what do you want to practice. Nothing is chosen until you tap, then Start.
-- The language pill next to the name shows what you are practicing, like 中文 or Español. Tapping it opens Language, the same list as first open.
+- Switch languages in Settings under Practicing, which opens Language, the same list as first open. The top bar stays calm with just the name and three buttons, since most people practice one language and the sentence itself shows which.
 - Each language keeps its own sentences, learned list and place.
 - Chinese shows pinyin under the characters. Spanish shows only the sentence and its translation.
 - Translate into offers English, 中文 and 한국어, without the language you are practicing. It starts on the phone's language and each language remembers its own choice.
@@ -120,7 +120,7 @@ Rules
 
 - Plain words, sentence case, short. No colons, semicolons or dashes in UI text.
 - Talk about the person's action, like Got it, Your turn, Practice again.
-- Language names appear in their own language in the pill and pickers, like 中文, Español and 한국어.
+- Language names appear in their own language in pickers and settings, like 中文, Español and 한국어.
 - Calm words for problems, with what to try next. When no voice is found, Settings explains which browsers work best instead of showing an error.
 
 ## Files
