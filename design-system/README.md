@@ -99,6 +99,8 @@ Rules
 - Pinyin fills in on the phone as you type. The translation comes from the free MyMemory service a moment later. Both stay editable, and once you type in a field yourself SaySay stops filling it.
 - Edit on the card, or the pencil on a row, opens Edit sentence with Save, and Delete sentence below.
 - Settings has Start over and Delete all sentences for the current language. Each says how many it affects, and both ask first.
+- An empty list shows one quiet line in the middle of the card, No sentences yet, in 17 regular `muted`. No count, no second line. The Add a sentence button below is the one action.
+- When everything is learned, the card keeps its count, like 15 learned, with All learned.
 
 ## Backup
 
