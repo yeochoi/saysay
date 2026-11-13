@@ -1,16 +1,17 @@
 /* SaySay, generated from tokens.json. Edit tokens.json, then run node scripts/build-design-system.mjs */
 :root {
   --primary: #C24A1E;
-  --accent-text: #A33D17;
-  --soft: #FBEDE6;
-  --current: #FCF2EE;
-  --bg: #FBFAF7;
+  --accent-text: #8E3313;
+  --soft: #F1EDEA;
+  --current: #F4EFEC;
+  --bg: #FCFAF8;
   --surface: #FFFFFF;
-  --ink: #1E1B2E;
-  --muted: #6B6778;
-  --line: #ECE9E4;
-  --chip: #EFECE7;
-  --chevron: #878394;
+  --ink: #2A211D;
+  --muted: #6F625C;
+  --line: #EAE4E0;
+  --border: #D6CCC5;
+  --chip: #F1EDEA;
+  --chevron: #8A7D76;
   --warn-text: #B42318;
   --backdrop: #3B3537;
   --space-1: 4px;
@@ -35,8 +36,8 @@
   --font-han: "Noto Serif SC", "Songti SC", "PingFang SC", serif;
   --font-mark: Quicksand, Outfit, system-ui, sans-serif;
 }
-.sentence { font-family: var(--font-han); font-size: 40px; line-height: 52px; font-weight: 600; }
-.title { font-family: var(--font-sans); font-size: 17px; line-height: 22px; font-weight: 600; }
+.sentence { font-family: var(--font-han); font-size: 40px; line-height: 52px; font-weight: 400; }
+.title { font-family: var(--font-sans); font-size: 17px; line-height: 22px; font-weight: 500; }
 .body { font-family: var(--font-sans); font-size: 17px; line-height: 24px; font-weight: 400; }
 .small { font-family: var(--font-sans); font-size: 13px; line-height: 19px; font-weight: 400; }
-.list-han { font-family: var(--font-han); font-size: 17px; line-height: 24px; font-weight: 600; }
+.list-han { font-family: var(--font-han); font-size: 17px; line-height: 24px; font-weight: 400; }
