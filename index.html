@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Quicksand:wght@700&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@500&display=swap">
-<link rel="stylesheet" href="design-system/tokens.css?v=202611141316">
+<link rel="stylesheet" href="design-system/tokens.css?v=202611141326">
 <style>
 /* Colours, type and sizes come from design-system/tokens.css. Only app values live here. */
 :root {
@@ -452,7 +452,7 @@ select {
 .rows .item-pin { display: block; }
 .rows .item-main { position: relative; }
 .cur-dot { position: absolute; left: -14px; top: 50%; margin-top: -3px; width: 6px; height: 6px; border-radius: 999px; background: var(--primary); }
-.row-end { color: var(--chevron); display: flex; align-items: center; flex-shrink: 0; }
+.row-end { margin-left: auto; color: var(--chevron); display: flex; align-items: center; flex-shrink: 0; }
 .rows.editing .row-end { color: var(--ink); }
 </style>
 </head>
@@ -752,7 +752,7 @@ select {
   </div>
 </div>
 
-<script src="vendor/pinyin-pro.js?v=202611141316"></script>
+<script src="vendor/pinyin-pro.js?v=202611141326"></script>
 <script>
 /* Languages you can practice. Adding one later is mostly a new entry here and its starter sentences. */
 const LANGS = {
@@ -1226,12 +1226,12 @@ function renderList() {
     const sub = L().pinyin ? (s.p || '') : tx(s), subLang = L().pinyin ? 'zh-Latn' : txLang(s);
     const cur = tab === 'practice' && i === idx;
     const act = editMode ? `data-edit="${i}"` : (tab === 'practice' ? `data-go="${i}"` : '');
-    const end = editMode ? `<span class="row-end" aria-hidden="true">${pencil}</span>`
-      : tab === 'learned' ? `<button class="chip-btn" data-back="${i}">Practice again</button>`
-      : `<span class="row-end" aria-hidden="true">${CHEV}</span>`;
+    // The chevron or pencil sits inside the row's button, so tapping anywhere on the row works.
+    const icon = editMode ? pencil : tab === 'practice' ? CHEV : '';
+    const back = !editMode && tab === 'learned' ? `<button class="chip-btn" data-back="${i}">Practice again</button>` : '';
     return `<div class="item ${cur ? 'cur' : ''}">
-      <button class="item-main" ${act}>${cur ? '<span class="cur-dot" aria-label="Current"></span>' : ''}<span class="item-text"><span class="item-han" lang="${L().html}">${esc(s.h)}</span><span class="item-pin" lang="${subLang}">${esc(sub)}</span></span></button>
-      ${end}
+      <button class="item-main" ${act}>${cur ? '<span class="cur-dot" aria-label="Current"></span>' : ''}<span class="item-text"><span class="item-han" lang="${L().html}">${esc(s.h)}</span><span class="item-pin" lang="${subLang}">${esc(sub)}</span></span>${icon ? `<span class="row-end" aria-hidden="true">${icon}</span>` : ''}</button>
+      ${back}
     </div>`;
   }).join('') + '</div>';
 }
