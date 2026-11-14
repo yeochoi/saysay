@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Quicksand:wght@700&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@500&display=swap">
-<link rel="stylesheet" href="design-system/tokens.css?v=202611140032">
+<link rel="stylesheet" href="design-system/tokens.css?v=202611140915">
 <style>
 /* Colours, type and sizes come from design-system/tokens.css. Only app values live here. */
 :root {
@@ -283,7 +283,7 @@ select {
 .lang-opt.on .tick { background: var(--primary); border-color: var(--primary); }
 .first { position: fixed; inset: 0; z-index: 40; background: var(--bg); overflow-y: auto; }
 .first[hidden] { display: none; }
-.first-in { max-width: 480px; min-height: 100%; margin: 0 auto; padding: calc(var(--top) + 48px) var(--gutter) calc(var(--bottom) + 24px); display: flex; flex-direction: column; }
+.first-in { max-width: 480px; min-height: 100%; margin: 0 auto; padding: calc(var(--top) + 20px) var(--gutter) calc(var(--bottom) + 24px); display: flex; flex-direction: column; }
 .first-name { font-family: var(--font-mark); font-weight: 700; font-size: 20px; line-height: 28px; color: var(--ink); margin-bottom: 20px; }
 .first-title { margin: 6px 0 24px; font-size: 34px; line-height: 40px; font-weight: 500; letter-spacing: -0.02em; }
 .first-list { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
@@ -413,16 +413,30 @@ select {
   .sent-body { padding-top: 0; }
   .tabbar { padding-bottom: 16px; }
 }
-/* First open. The one terracotta screen, a brand moment before the calm app. */
-.first { background: var(--primary); color: #fff; }
-.first-name { color: #fff; font-size: 24px; }
-.first-title { color: #fff; margin: 72px 0 0; font-size: 44px; line-height: 50px; font-weight: 300; letter-spacing: -0.03em; }
-.first-sub { margin: 40px 0 14px; font-size: 17px; line-height: 24px; font-weight: 400; color: #fff; }
-.first-list { border: 0; border-radius: 20px; }
-.first .list-note { color: #fff; }
-.first .btn { background: #fff; color: var(--ink); }
-.first .btn:disabled { opacity: 0.55; }
-.first-import { color: #fff; }
+/* First open. The same calm background as the app, a small terracotta name, one tap to start. */
+.first { background: var(--bg); color: var(--ink); }
+.first-name { color: var(--primary); font-size: 20px; line-height: 26px; margin: 0; height: 44px; display: flex; align-items: center; }
+.first-mid { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 24px 0; }
+.first-title { color: var(--ink); margin: 0; font-size: 36px; line-height: 44px; font-weight: 300; letter-spacing: -0.02em; }
+.first-sub { margin: 14px 0 32px; font-size: 17px; line-height: 24px; font-weight: 400; color: var(--muted); }
+.first-list { background: none; border: 0; border-radius: 0; overflow: visible; display: flex; flex-direction: column; gap: 10px; }
+.first-pill { height: 56px; border-radius: 999px; border: 1.5px solid var(--border); background: transparent; color: var(--ink); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; font-family: inherit; font-size: 17px; font-weight: 500; }
+.first-pill svg { color: var(--muted); }
+.first-pill:hover { background: var(--surface); }
+.first-pill:focus-visible, .first-import:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.first-foot { margin-top: 0; padding-top: 8px; }
+.first-import { color: var(--muted); font-size: 15px; }
+
+/* Sentences and Settings as tab screens. Same background, a light title, no sheet. */
+.tabview { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.tabview[hidden], .hero[hidden], .controls[hidden] { display: none !important; }
+.tv-in { flex: 1; min-height: 0; display: flex; flex-direction: column; width: 100%; box-sizing: border-box; padding: calc(var(--top) + 20px) var(--gutter) 0; }
+.tv-head { height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
+.tv-title { margin: 0; font-size: 28px; line-height: 34px; font-weight: 300; letter-spacing: -0.02em; color: var(--ink); }
+.tv-body { flex: 1; min-height: 0; overflow-y: auto; padding: 24px 0 24px; -webkit-overflow-scrolling: touch; }
+.add-round { width: 44px; height: 44px; border-radius: 999px; border: 0; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; padding: 0; }
+.add-round:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+@media (min-width: 900px) { .tv-in { padding-top: 40px; } }
 </style>
 </head>
 <body>
@@ -470,6 +484,18 @@ select {
   </div>
 <div class="toast" id="toast" role="status"><span id="toastText">Moved to Learned</span><button id="undo">Undo</button></div>
 </main>
+<section class="tabview" id="viewSentences" hidden aria-labelledby="sentTitle">
+  <div class="wrap tv-in">
+    <div class="tv-head"><h1 class="tv-title" id="sentTitle">Sentences</h1><span id="sentAddSlot"></span></div>
+    <div class="tv-body" id="sentBody"></div>
+  </div>
+</section>
+<section class="tabview" id="viewSettings" hidden aria-labelledby="setTitle">
+  <div class="wrap tv-in">
+    <div class="tv-head"><h1 class="tv-title" id="setTitle">Settings</h1></div>
+    <div class="tv-body" id="setBody"></div>
+  </div>
+</section>
 <nav class="tabbar" aria-label="Main">
   <div class="wrap tabbar-in">
     <button class="tab on" id="tabPractice" aria-current="page"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg>Practice</button>
@@ -700,15 +726,16 @@ select {
 <div class="first" id="first" hidden>
   <div class="first-in">
     <div class="first-name">SaySay</div>
-    <h2 class="first-title">Say it,<br>then say it back.</h2>
-    <p class="first-sub">What do you want to practice?</p>
-    <div class="first-list" id="firstList"></div>
-    <div class="list-note" style="padding-left:0">You can switch any time in Settings.</div>
-    <div class="first-foot"><button class="btn" id="firstStart" disabled>Start</button><button class="first-import" id="firstImport">Have a backup? Import it</button></div>
+    <div class="first-mid">
+      <h2 class="first-title">Say it,<br>then say it back.</h2>
+      <p class="first-sub">What do you want to practice?</p>
+      <div class="first-list" id="firstList"></div>
+    </div>
+    <div class="first-foot"><button class="first-import" id="firstImport">Have a backup? Import it</button></div>
   </div>
 </div>
 
-<script src="vendor/pinyin-pro.js?v=202611140032"></script>
+<script src="vendor/pinyin-pro.js?v=202611140915"></script>
 <script>
 /* Languages you can practice. Adding one later is mostly a new entry here and its starter sentences. */
 const LANGS = {
@@ -1010,7 +1037,25 @@ const sheetTimers = {};
 let closedNow = null;
 const onSheets = () => [...document.querySelectorAll('.sheet-wrap.on:not(.leaving)')];
 function pageBehind(on) { document.documentElement.classList.toggle('sheet-open', on); $('page').classList.toggle('behind', on); }
+/* Sentences and Settings are tabs, not sheets. Their content moves into the page once,
+   and the old open and close calls switch tabs instead. */
+const TAB_OF = { listSheet: 'sentences', setSheet: 'settings' };
+let curTab = 'practice';
+function showTab(name) {
+  if (name !== 'practice' && playing) stop();
+  curTab = name;
+  $('hero').hidden = name !== 'practice';
+  document.querySelector('.controls').hidden = name !== 'practice';
+  $('viewSentences').hidden = name !== 'sentences';
+  $('viewSettings').hidden = name !== 'settings';
+  [['tabPractice', 'practice'], ['openList', 'sentences'], ['openSettings', 'settings']].forEach(([id, n]) => {
+    $(id).classList.toggle('on', n === name);
+    if (n === name) $(id).setAttribute('aria-current', 'page'); else $(id).removeAttribute('aria-current');
+  });
+  if (name !== 'practice') { const v = name === 'sentences' ? $('viewSentences') : $('viewSettings'); v.querySelector('.tv-body').scrollTop = 0; placeThumbs(v); }
+}
 function open(id) {
+  if (TAB_OF[id]) { showTab(TAB_OF[id]); return; }
   hideToast();
   const w = $(id);
   clearTimeout(sheetTimers[id]);
@@ -1038,6 +1083,8 @@ function open(id) {
   placeThumbs(w);
 }
 function close(id) {
+  if (id === 'listSheet') { showTab('practice'); return; }
+  if (id === 'setSheet') return;
   const w = $(id);
   if (!w.classList.contains('on') || w.classList.contains('leaving')) return;
   const under = onSheets().filter((x) => x !== w).pop();
@@ -1128,14 +1175,13 @@ $('langList').onclick = (e) => {
 };
 
 /* First open */
-let firstPick = null;
+/* One tap on a language starts. No Start button, so nothing ever sits greyed out. */
+const CHEV = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
 function showFirst() {
-  $('firstList').innerHTML = langOptions(firstPick);
-  $('firstStart').disabled = !firstPick;
+  $('firstList').innerHTML = Object.entries(LANGS).map(([k, v]) => `<button class="first-pill" data-lang="${k}">${v.en}${CHEV}</button>`).join('');
   $('first').hidden = false;
 }
-$('firstList').onclick = (e) => { const b = e.target.closest('[data-lang]'); if (!b) return; firstPick = b.dataset.lang; showFirst(); };
-$('firstStart').onclick = () => { if (!firstPick) return; $('first').hidden = true; setLang(firstPick); };
+$('firstList').onclick = (e) => { const b = e.target.closest('[data-lang]'); if (!b) return; $('first').hidden = true; setLang(b.dataset.lang); };
 
 /* Sentences list */
 let tab = 'practice';
@@ -1414,6 +1460,17 @@ function renderDs() {
 $('openDs').onclick = () => { renderDs(); close('setSheet'); open('dsSheet'); $('dsSheet').querySelector('.sheet-body').scrollTop = 0; };
 $('dsBack').onclick = () => { close('dsSheet'); open('setSheet'); };
 
+(() => {
+  const lb = $('listSheet').querySelector('.sheet-body'), sb = $('setSheet').querySelector('.sheet-body');
+  while (lb.firstChild) $('sentBody').append(lb.firstChild);
+  while (sb.firstChild) $('setBody').append(sb.firstChild);
+  const add = $('openAdd');
+  add.className = 'add-round'; add.setAttribute('aria-label', 'Add sentence');
+  add.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+  $('sentAddSlot').append(add);
+  $('listSheet').remove(); $('setSheet').remove();
+  $('tabPractice').onclick = () => showTab('practice');
+})();
 /* Keyboard on laptops. Space plays or pauses, arrows move, Enter is Mark learned, Escape closes a sheet. */
 document.addEventListener('keydown', (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -1427,7 +1484,7 @@ document.addEventListener('keydown', (e) => {
     else close(openSheet.id);
     return;
   }
-  if (openSheet || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  if (openSheet || curTab !== 'practice' || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
   const empty = !practice().length;
   if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); if (!empty) $('play').click(); }
   else if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
