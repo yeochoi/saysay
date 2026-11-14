@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Quicksand:wght@700&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@500&display=swap">
-<link rel="stylesheet" href="design-system/tokens.css?v=202611140915">
+<link rel="stylesheet" href="design-system/tokens.css?v=202611141316">
 <style>
 /* Colours, type and sizes come from design-system/tokens.css. Only app values live here. */
 :root {
@@ -437,6 +437,23 @@ select {
 .add-round { width: 44px; height: 44px; border-radius: 999px; border: 0; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; padding: 0; }
 .add-round:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 @media (min-width: 900px) { .tv-in { padding-top: 40px; } }
+
+/* Sentences list. Rows on the background, no card, no lines. Terracotta only on + and the tab. */
+#sentAddSlot { display: flex; align-items: center; gap: 4px; }
+.text-btn { border: 0; background: none; font-family: inherit; font-size: 17px; color: var(--ink); padding: 0 12px; height: 44px; }
+.text-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 999px; }
+.seg button.on { color: var(--ink); }
+.rows { display: flex; flex-direction: column; }
+.rows .item { border-top: 0; padding: 0; min-height: 72px; gap: 8px; }
+.rows .item.cur { background: none; }
+.rows .item-main { display: flex; align-items: center; gap: 10px; min-height: 72px; }
+.item-text { display: flex; flex-direction: column; min-width: 0; }
+.rows .item-han { font-weight: 400; display: block; }
+.rows .item-pin { display: block; }
+.rows .item-main { position: relative; }
+.cur-dot { position: absolute; left: -14px; top: 50%; margin-top: -3px; width: 6px; height: 6px; border-radius: 999px; background: var(--primary); }
+.row-end { color: var(--chevron); display: flex; align-items: center; flex-shrink: 0; }
+.rows.editing .row-end { color: var(--ink); }
 </style>
 </head>
 <body>
@@ -735,7 +752,7 @@ select {
   </div>
 </div>
 
-<script src="vendor/pinyin-pro.js?v=202611140915"></script>
+<script src="vendor/pinyin-pro.js?v=202611141316"></script>
 <script>
 /* Languages you can practice. Adding one later is mostly a new entry here and its starter sentences. */
 const LANGS = {
@@ -1042,6 +1059,7 @@ function pageBehind(on) { document.documentElement.classList.toggle('sheet-open'
 const TAB_OF = { listSheet: 'sentences', setSheet: 'settings' };
 let curTab = 'practice';
 function showTab(name) {
+  if (name !== 'sentences' && editMode) { editMode = false; }
   if (name !== 'practice' && playing) stop();
   curTab = name;
   $('hero').hidden = name !== 'practice';
@@ -1189,7 +1207,9 @@ const esc = (t) => { const d = document.createElement('div'); d.textContent = t 
 const pencil = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>';
 const BACK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
 const CLOSE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+let editMode = false;
 function renderList() {
+  if ($('editList')) { $('editList').textContent = editMode ? 'Done' : 'Edit'; $('editList').setAttribute('aria-pressed', editMode ? 'true' : 'false'); }
   const p = practice(), l = learned();
   $('tabs').children[0].textContent = `Practice ${p.length}`;
   $('tabs').children[1].textContent = `Learned ${l.length}`;
@@ -1200,12 +1220,18 @@ function renderList() {
     return;
   }
   // Chinese rows show pinyin under the characters. Spanish rows show the translation.
-  $('listBox').innerHTML = '<div class="card">' + items.map((s, i) => {
+  // Rows sit straight on the background. A small dot marks the sentence you are on.
+  // Tapping a row practices it. In Edit mode, tapping a row opens it to edit.
+  $('listBox').innerHTML = '<div class="rows' + (editMode ? ' editing' : '') + '">' + items.map((s, i) => {
     const sub = L().pinyin ? (s.p || '') : tx(s), subLang = L().pinyin ? 'zh-Latn' : txLang(s);
-    return `<div class="item ${tab === 'practice' && i === idx ? 'cur' : ''}">
-      <button class="item-main" data-go="${i}"><div class="item-han" lang="${L().html}">${esc(s.h)}</div><div class="item-pin" lang="${subLang}">${esc(sub)}</div></button>
-      ${tab === 'learned' ? `<button class="chip-btn" data-back="${i}">Practice again</button>` : ''}
-      <button class="icon-btn" data-edit="${i}" aria-label="Edit">${pencil}</button>
+    const cur = tab === 'practice' && i === idx;
+    const act = editMode ? `data-edit="${i}"` : (tab === 'practice' ? `data-go="${i}"` : '');
+    const end = editMode ? `<span class="row-end" aria-hidden="true">${pencil}</span>`
+      : tab === 'learned' ? `<button class="chip-btn" data-back="${i}">Practice again</button>`
+      : `<span class="row-end" aria-hidden="true">${CHEV}</span>`;
+    return `<div class="item ${cur ? 'cur' : ''}">
+      <button class="item-main" ${act}>${cur ? '<span class="cur-dot" aria-label="Current"></span>' : ''}<span class="item-text"><span class="item-han" lang="${L().html}">${esc(s.h)}</span><span class="item-pin" lang="${subLang}">${esc(sub)}</span></span></button>
+      ${end}
     </div>`;
   }).join('') + '</div>';
 }
@@ -1467,7 +1493,9 @@ $('dsBack').onclick = () => { close('dsSheet'); open('setSheet'); };
   const add = $('openAdd');
   add.className = 'add-round'; add.setAttribute('aria-label', 'Add sentence');
   add.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
-  $('sentAddSlot').append(add);
+  const ed = document.createElement('button'); ed.id = 'editList'; ed.className = 'text-btn'; ed.type = 'button'; ed.textContent = 'Edit';
+  ed.onclick = () => { editMode = !editMode; renderList(); };
+  $('sentAddSlot').append(ed, add);
   $('listSheet').remove(); $('setSheet').remove();
   $('tabPractice').onclick = () => showTab('practice');
 })();
