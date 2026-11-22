@@ -454,6 +454,15 @@ select {
 .cur-dot { position: absolute; left: -14px; top: 50%; margin-top: -3px; width: 6px; height: 6px; border-radius: 999px; background: var(--primary); }
 .row-end { margin-left: auto; color: var(--chevron); display: flex; align-items: center; flex-shrink: 0; }
 .rows.editing .row-end { color: var(--ink); }
+/* Swipe a row left to show Edit and Delete, like iOS Mail. The actions only show while a row is moving or open. */
+.rows .item.swipe { position: relative; display: block; }
+.swipe-front { position: relative; z-index: 1; display: flex; align-items: center; gap: 8px; background: var(--bg); touch-action: pan-y; transition: transform 0.3s var(--ease-spring, ease); }
+.swipe-front.dragging { transition: none; }
+.swipe-acts { position: absolute; top: 0; right: 0; bottom: 0; display: flex; z-index: 0; visibility: hidden; }
+.item.reveal .swipe-acts { visibility: visible; }
+.swipe-acts button { width: 88px; border: 0; color: #fff; font-family: inherit; font-size: 15px; font-weight: 500; }
+.swipe-acts .sw-edit { background: var(--muted); }
+.swipe-acts .sw-del { background: var(--warn-text); }
 </style>
 </head>
 <body>
@@ -1210,7 +1219,9 @@ const pencil = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stro
 const BACK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
 const CLOSE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 let editMode = false;
+let openRow = null, drag = null, swiped = false;
 function renderList() {
+  openRow = null;
   if ($('editList')) { $('editList').textContent = editMode ? 'Done' : 'Edit'; $('editList').setAttribute('aria-pressed', editMode ? 'true' : 'false'); }
   const p = practice(), l = learned();
   $('tabs').children[0].textContent = `Practice ${p.length}`;
@@ -1231,17 +1242,28 @@ function renderList() {
     // The chevron or pencil sits inside the row's button, so tapping anywhere on the row works.
     const icon = editMode ? pencil : tab === 'practice' ? CHEV : '';
     const back = !editMode && tab === 'learned' ? `<button class="chip-btn" data-back="${i}">Practice again</button>` : '';
-    return `<div class="item ${cur ? 'cur' : ''}">
+    return `<div class="item swipe ${cur ? 'cur' : ''}" data-i="${i}">
+      <div class="swipe-acts"><button class="sw-edit" data-edit="${i}" tabindex="-1">Edit</button><button class="sw-del" data-del="${i}" tabindex="-1">Delete</button></div>
+      <div class="swipe-front">
       <button class="item-main" ${act}>${cur ? '<span class="cur-dot" aria-label="Current"></span>' : ''}<span class="item-text"><span class="item-han" lang="${L().html}">${esc(s.h)}</span><span class="item-pin" lang="${subLang}">${esc(sub)}</span></span>${icon ? `<span class="row-end" aria-hidden="true">${icon}</span>` : ''}</button>
       ${back}
+      </div>
     </div>`;
   }).join('') + '</div>';
 }
 $('tabs').onclick = (e) => { const b = e.target.closest('button'); if (b) { tab = b.dataset.tab; renderList(); } };
 $('listBox').onclick = (e) => {
   const items = tab === 'practice' ? practice() : learned();
-  const go = e.target.closest('[data-go]'), back = e.target.closest('[data-back]'), ed = e.target.closest('[data-edit]');
-  if (ed) {
+  if (swiped) { e.preventDefault(); swiped = false; return; }
+  const go = e.target.closest('[data-go]'), back = e.target.closest('[data-back]'), ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
+  // A tap on a row while another row is open just closes it.
+  if (openRow && !ed && !del) { closeRow(); return; }
+  if (del) {
+    const s = items[+del.dataset.del];
+    if (!confirm(`Delete this sentence?\n\n${s.h}\n\nThis can't be undone.`)) { closeRow(); return; }
+    stop(); all().splice(all().indexOf(s), 1); openRow = null; render(); renderList(); showToast('Sentence deleted');
+  } else if (ed) {
+    closeRow();
     openEdit(items[+ed.dataset.edit], true);
   } else if (back) {
     const s = items[+back.dataset.back];
@@ -1251,6 +1273,40 @@ $('listBox').onclick = (e) => {
   }
 };
 $('openList').onclick = () => { tab = 'practice'; renderList(); open('listSheet'); };
+/* Swipe. A sideways drag on a row slides it to show Edit and Delete. Up and down still scrolls. */
+const SW = 176;
+function setX(front, x) { front.style.transform = x ? `translateX(${x}px)` : ''; }
+function setActs(row, on) { row.querySelectorAll('.swipe-acts button').forEach((b) => b.tabIndex = on ? 0 : -1); }
+function hideActs(row) { setTimeout(() => { if (openRow !== row && !(drag && drag.row === row)) row.classList.remove('reveal'); }, 320); }
+function closeRow() { if (!openRow) return; const r = openRow; setX(r.querySelector('.swipe-front'), 0); setActs(r, false); openRow = null; hideActs(r); }
+$('listBox').addEventListener('pointerdown', (e) => {
+  const front = e.target.closest('.swipe-front'); if (!front || e.button > 0) return;
+  const row = front.parentElement;
+  drag = { row, front, x0: e.clientX, y0: e.clientY, base: openRow === row ? -SW : 0, on: false, id: e.pointerId };
+});
+$('listBox').addEventListener('pointermove', (e) => {
+  if (!drag || e.pointerId !== drag.id) return;
+  const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+  if (!drag.on) {
+    if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { drag = null; return; }
+    if (Math.abs(dx) < 8) return;
+    drag.on = true; drag.front.classList.add('dragging'); drag.row.classList.add('reveal');
+    if (openRow && openRow !== drag.row) closeRow();
+    try { drag.front.setPointerCapture(e.pointerId); } catch (err) {}
+  }
+  setX(drag.front, Math.max(-SW - 40, Math.min(0, drag.base + dx)));
+});
+function endDrag(e) {
+  if (!drag || (e && e.pointerId !== drag.id)) return;
+  const d = drag; drag = null;
+  if (!d.on) return;
+  d.front.classList.remove('dragging');
+  const m = new DOMMatrix(getComputedStyle(d.front).transform).m41;
+  if (m < -SW / 2.5) { setX(d.front, -SW); openRow = d.row; setActs(d.row, true); } else { setX(d.front, 0); setActs(d.row, false); if (openRow === d.row) openRow = null; hideActs(d.row); }
+  swiped = true; setTimeout(() => { swiped = false; }, 0);
+}
+$('listBox').addEventListener('pointerup', endDrag);
+$('listBox').addEventListener('pointercancel', endDrag);
 
 /* Add and edit. The form follows the language. Spanish has no pinyin. */
 const addNote = () => L().pinyin
@@ -1496,9 +1552,7 @@ $('dsBack').onclick = () => { close('dsSheet'); open('setSheet'); };
   const add = $('openAdd');
   add.className = 'add-round'; add.setAttribute('aria-label', 'Add sentence');
   add.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
-  const ed = document.createElement('button'); ed.id = 'editList'; ed.className = 'text-btn'; ed.type = 'button'; ed.textContent = 'Edit';
-  ed.onclick = () => { editMode = !editMode; renderList(); };
-  $('sentAddSlot').append(ed, add);
+  $('sentAddSlot').append(add);
   $('listSheet').remove(); $('setSheet').remove();
   $('tabPractice').onclick = () => showTab('practice');
 })();
