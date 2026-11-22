@@ -1284,8 +1284,9 @@ function openEdit(s, fromList) {
   if (!s) return;
   stop(); editing = s; editFromList = !!fromList; formMode(true, editFromList);
   $('inHan').value = s.h; $('inPin').value = s.p || ''; $('inEng').value = tx(s);
-  // Saved pinyin and translation are kept unless the field is cleared.
-  pinEdited = !!s.p; engEdited = !!tx(s); transRun++;
+  // Saved pinyin and translation stay until the sentence changes.
+  // Changing the sentence makes new ones, unless the user typed in those fields during this edit.
+  pinEdited = engEdited = false; transRun++;
   $('saveAdd').disabled = !s.h; open('addSheet');
 }
 function closeForm() { transRun++; clearTimeout(transTimer); close('addSheet'); if (editFromList) renderList(); }
