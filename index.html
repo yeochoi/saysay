@@ -1181,6 +1181,8 @@ function setLang(lang) {
   stop(); lastLearned = null;
   state.lang = lang; ensureList(lang); fixTarget(); syncIdx();
   loadVoices(); render();
+  // Settings is a tab that stays on screen, so it must follow the new language too.
+  renderLangSettings(); renderResets();
 }
 function openLang() { $('langList').innerHTML = langOptions(state.lang); open('langSheet'); }
 $('openLang').onclick = () => { close('setSheet'); openLang(); };
