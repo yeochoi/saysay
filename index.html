@@ -977,44 +977,67 @@ function setStatus(text, turn, n, total) {
     ft.style.transition = 'none'; ft.style.width = '0%';
     fl.style.transition = ''; fl.style.width = (total > 1 ? (n / total) * 100 : 100) + '%';
   } else {
+    // After a pause the bar picks up where it stopped and fills over the time that was left.
+    const left = turn === true ? state.pause : turn, from = 1 - left / state.pause;
     fl.style.transition = ''; fl.style.width = '100%';
-    ft.style.transition = 'none'; ft.style.width = '0%';
+    ft.style.transition = 'none'; ft.style.width = (from * 100) + '%';
     void ft.offsetWidth;
-    ft.style.transition = `width ${state.pause}ms linear`; ft.style.width = '100%';
+    ft.style.transition = `width ${left}ms linear`; ft.style.width = '100%';
   }
+}
+function freezeStatus() {
+  const ft = $('fillTurn'), w = ft.getBoundingClientRect().width, pw = ft.parentElement.getBoundingClientRect().width;
+  ft.style.transition = 'none'; ft.style.width = (pw ? (w / pw) * 100 : 0) + '%';
 }
 function setPlaying(on) {
   playing = on;
   $('playLabel').textContent = on ? 'Pause' : 'Play';
   $('playIcon').innerHTML = on ? '<rect x="6" y="4.5" width="4" height="15" rx="1"/><rect x="14" y="4.5" width="4" height="15" rx="1"/>' : '<path d="M7 4.5v15l13-7.5z"/>';
 }
-async function run() {
+/* Where playback is, so Pause can pick up from the same listen or the same moment of Your turn. */
+let at = null, resumeAt = null;
+async function run(from) {
   const id = ++runId;
   setPlaying(true);
   while (id === runId) {
     const s = practice()[idx];
     if (!s) break;
     const times = [1, 2, 3].includes(state.repeat) ? state.repeat : 2;
-    for (let k = 1; k <= times; k++) {
-      setStatus('Listen', false, k, times); await speak(s.h, id); if (id !== runId) return;
-      if (k < times) { await wait(600); if (id !== runId) return; }
+    const start = from && from.h === s.h ? from : null; from = null;
+    if (!start || !start.turn) {
+      for (let k = start ? Math.min(start.k, times) : 1; k <= times; k++) {
+        at = { h: s.h, k };
+        setStatus('Listen', false, k, times); await speak(s.h, id); if (id !== runId) return;
+        if (k < times) { at = { h: s.h, k: k + 1 }; await wait(600); if (id !== runId) return; }
+      }
     }
-    setStatus('Your turn', true); await wait(state.pause); if (id !== runId) return;
+    const left = start && start.turn ? start.left : state.pause;
+    at = { h: s.h, turn: true, t0: Date.now(), left };
+    setStatus('Your turn', left); await wait(left); if (id !== runId) return;
     if (idx >= practice().length - 1) break;
     idx++; render();
   }
   if (id === runId) stop();
 }
 function stop() {
-  runId++;
+  runId++; at = resumeAt = null;
   if (canSpeak) speechSynthesis.cancel();
   setPlaying(false); setStatus('');
 }
+function pause() {
+  runId++;
+  if (canSpeak) speechSynthesis.cancel();
+  // A listen that was cut off plays again from its start. Your turn keeps the time it had left.
+  resumeAt = at && at.turn ? { h: at.h, turn: true, left: Math.max(300, at.left - (Date.now() - at.t0)) } : at;
+  at = null;
+  setPlaying(false); freezeStatus();
+}
 $('play').onclick = () => {
-  if (playing) return stop();
+  if (playing) return pause();
   if (!canSpeak) return showToast('This browser can\'t speak. Try Safari or Chrome');
   if (voicesChecked && !voices.length && !voiceTipShown) { voiceTipShown = true; showToast('Can\'t hear it? See Settings for a tip'); }
-  run();
+  const s = practice()[idx], from = resumeAt && s && resumeAt.h === s.h ? resumeAt : null;
+  resumeAt = null; run(from);
 };
 function go(step) {
   const to = idx + step;
