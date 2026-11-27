@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Quicksand:wght@700&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@500&display=swap">
-<link rel="stylesheet" href="design-system/tokens.css?v=202611141326">
+<link rel="stylesheet" href="design-system/tokens.css?v=202611271906">
 <style>
 /* Colours, type and sizes come from design-system/tokens.css. Only app values live here. */
 :root {
@@ -464,6 +464,23 @@ select {
 .swipe-acts button { width: 88px; border: 0; color: #fff; font-family: inherit; font-size: 15px; font-weight: 500; }
 .swipe-acts .sw-edit { background: var(--muted); }
 .swipe-acts .sw-del { background: var(--warn-text); }
+/* Paste lesson. A second way to add, for many sentences at once from Claude. */
+#addModeSeg { margin: 8px 0 16px; }
+#addModeSeg[hidden], #onePane[hidden], #pastePane[hidden], .paste-empty[hidden], .paste-found[hidden], #pasteBox[hidden] { display: none; }
+.paste-empty { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 28px 20px; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; }
+.paste-icon { width: 56px; height: 56px; border-radius: 999px; background: var(--soft); color: var(--accent-text); display: flex; align-items: center; justify-content: center; }
+.paste-t { font-size: 20px; line-height: 26px; font-weight: 500; }
+.paste-s { font-size: 15px; line-height: 21px; color: var(--muted); margin-top: 6px; }
+.paste-btn { height: 44px; padding: 0 22px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font-family: inherit; font-size: 17px; font-weight: 500; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+.paste-btn:focus-visible, .paste-again:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+#pasteBox { width: 100%; box-sizing: border-box; min-height: 120px; border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-family: var(--font-han); font-size: 17px; line-height: 24px; color: var(--ink); background: var(--bg); resize: vertical; }
+.paste-head { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 10px; }
+.paste-head b { font-size: 17px; font-weight: 500; }
+.paste-again { border: 0; background: none; font-family: inherit; font-size: 15px; color: var(--accent-text); padding: 10px 0; }
+.paste-row { display: flex; flex-direction: column; justify-content: center; min-height: 64px; padding: 8px 16px; box-sizing: border-box; border-top: 1px solid var(--line); }
+.paste-row:first-child { border-top: 0; }
+.paste-row .item-han { font-weight: 400; }
+.paste-row.dup { opacity: 0.5; }
 </style>
 </head>
 <body>
@@ -509,7 +526,6 @@ select {
     <button class="btn" id="emptyAdd">Add a sentence</button>
     <div class="got-note" id="emptyNote">Or open Learned in the list to practice one again.</div>
   </div>
-<div class="toast" id="toast" role="status"><span id="toastText">Moved to Learned</span><button id="undo">Undo</button></div>
 </main>
 <section class="tabview" id="viewSentences" hidden aria-labelledby="sentTitle">
   <div class="wrap tv-in">
@@ -531,6 +547,8 @@ select {
   </div>
 </nav>
 </div>
+<!-- The toast sits outside the tabs so it shows on Sentences and Settings too. -->
+<div class="toast" id="toast" role="status"><span id="toastText">Moved to Learned</span><button id="undo">Undo</button></div>
 
 <!-- Sentences sheet -->
 <div class="sheet-wrap" id="listSheet">
@@ -559,6 +577,8 @@ select {
       <div class="sheet-title" id="formTitle">New sentence</div><div></div>
     </div>
     <div class="sheet-body">
+      <div class="seg" id="addModeSeg"><button data-v="one" class="on">One sentence</button><button data-v="paste">Paste lesson</button></div>
+      <div id="onePane">
       <div class="card" style="margin-top:8px">
         <label class="field"><span id="hanLabel">Chinese</span><input class="big" id="inHan" placeholder="你喜欢什么？" autocomplete="off"></label>
         <label class="field" id="pinField"><span>Pinyin</span><input id="inPin" placeholder="Fills in as you type" autocomplete="off"></label>
@@ -566,6 +586,20 @@ select {
       </div>
       <div class="list-note" id="addNote">Type the Chinese and pinyin and English fill in for you. You can change them before you add.</div>
       <div class="del-wrap" id="editDelete" hidden><button class="text-btn" id="deleteOne">Delete sentence</button></div>
+      </div>
+      <div id="pastePane" hidden>
+        <div class="paste-empty" id="pasteEmpty">
+          <div class="paste-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/></svg></div>
+          <div><div class="paste-t">Paste from Claude</div><div class="paste-s">Copy the sentences Claude wrote in your SaySay lessons project, then tap Paste.</div></div>
+          <button class="paste-btn" id="pasteBtn" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/></svg>Paste</button>
+          <textarea id="pasteBox" hidden placeholder="Touch and hold here, then choose Paste" aria-label="Sentences to paste"></textarea>
+        </div>
+        <div class="paste-found" id="pasteFound" hidden>
+          <div class="paste-head"><b id="pasteCount"></b><button class="paste-again" id="pasteAgain" type="button">Paste again</button></div>
+          <div class="card" id="pasteList"></div>
+        </div>
+        <div class="list-note" id="pasteNote"></div>
+      </div>
     </div>
     <div class="sheet-foot"><button class="btn" id="saveAdd" disabled>Add</button></div>
   </div>
@@ -762,7 +796,7 @@ select {
   </div>
 </div>
 
-<script src="vendor/pinyin-pro.js?v=202611141326"></script>
+<script src="vendor/pinyin-pro.js?v=202611271906"></script>
 <script>
 /* Languages you can practice. Adding one later is mostly a new entry here and its starter sentences. */
 const LANGS = {
@@ -1065,13 +1099,18 @@ $('got').onclick = () => {
   showToast('Moved to Learned', true);
   if (was && practice().length) run();
 };
+let toastAction = null;
 $('undo').onclick = () => {
+  if (toastAction) { const f = toastAction; toastAction = null; hideToast(); f(); return; }
   if (!lastLearned) return;
   lastLearned.l = false;
   idx = Math.max(0, practice().indexOf(lastLearned));
   lastLearned = null; hideToast(); render();
 };
-function showToast(t, undo) {
+function showToast(t, undo, action) {
+  toastAction = action ? action.fn : null;
+  $('undo').textContent = action ? action.label : 'Undo';
+  if (action) undo = true;
   $('undo').hidden = !undo;
   $('toast').classList.toggle('plain', !undo);
   $('toastText').textContent = t; $('toast').classList.add('on');
@@ -1355,6 +1394,8 @@ function formMode(edit, fromList) {
   $('engLabel').textContent = `${T().en}, optional`;
   $('inEng').lang = T().html;
   $('addNote').textContent = edit ? editNote() : addNote();
+  $('addModeSeg').hidden = edit;
+  setAddMode('one');
 }
 function openAdd() {
   editing = null; editFromList = false; formMode(false, false);
@@ -1428,6 +1469,7 @@ $('inHan').oninput = () => {
 $('inPin').oninput = () => { pinEdited = $('inPin').value.trim() !== ''; };
 $('inEng').oninput = () => { engEdited = $('inEng').value.trim() !== ''; };
 $('saveAdd').onclick = () => {
+  if (addMode === 'paste') return addPasted();
   transRun++; clearTimeout(transTimer);
   const h = $('inHan').value.trim(); if (!h) return;
   const p = L().pinyin ? $('inPin').value.trim() : '', e = $('inEng').value.trim();
@@ -1447,6 +1489,100 @@ $('saveAdd').onclick = () => {
   lastLearned = null;
   showToast('Added to the top');
 };
+
+/* Paste lesson. Claude writes each sentence as Chinese, pinyin and English with an empty line between.
+   SaySay reads that back, checks it, then adds them all to the top of Practice in the same order. */
+let addMode = 'one', pasted = [];
+const PASTE_NOTE = () => L().pinyin
+  ? 'Each sentence is three lines, Chinese, pinyin and English, with an empty line between sentences.'
+  : `Each sentence is two lines, ${L().en} and its translation, with an empty line between sentences.`;
+function setAddMode(m) {
+  addMode = m;
+  syncSeg('addModeSeg', m);
+  $('onePane').hidden = m !== 'one';
+  $('pastePane').hidden = m !== 'paste';
+  $('formTitle').textContent = editing ? 'Edit sentence' : (m === 'paste' ? 'New sentences' : 'New sentence');
+  if (m === 'paste') { showPasted(); }
+  else { $('saveAdd').textContent = editing ? 'Save' : 'Add'; $('saveAdd').disabled = !$('inHan').value.trim(); }
+  placeThumb($('addModeSeg'), true);
+}
+$('addModeSeg').onclick = (e) => { const b = e.target.closest('button'); if (b) setAddMode(b.dataset.v); };
+const txLangOf = (t) => /[가-힣]/.test(t) ? 'ko' : /[㐀-鿿]/.test(t) ? 'zh' : 'en';
+function parseLesson(text) {
+  const clean = (l) => l.replace(/^\s*(\d+[\.\)、]|[-*•])\s*/, '').replace(/^\*+|\*+$/g, '').trim();
+  const lines = text.replace(/\r/g, '').split('\n').map(clean);
+  const out = [];
+  if (L().pinyin) {
+    // A line with Chinese starts a sentence. The next lines without Chinese are pinyin, then the translation.
+    let cur = null;
+    for (const l of lines) {
+      if (!l) continue;
+      if (L().has(l)) { cur = { h: l }; out.push(cur); continue; }
+      if (!cur) continue;
+      if (cur.p === undefined && /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü]/i.test(l)) cur.p = l;
+      else if (cur.e === undefined) cur.e = l;
+    }
+  } else {
+    let block = [];
+    const flush = () => { if (block.length && L().has(block[0])) out.push({ h: block[0], e: block[1] }); block = []; };
+    for (const l of lines) { if (!l) flush(); else block.push(l); }
+    flush();
+  }
+  const seen = new Set();
+  return out.filter((s) => s.h && !seen.has(s.h) && seen.add(s.h)).slice(0, 50).map((s) => {
+    const r = { h: s.h, e: s.e || '', tl: s.e ? txLangOf(s.e) : state.target };
+    if (L().pinyin) r.p = s.p || toPinyin(s.h);
+    return r;
+  });
+}
+function showPasted() {
+  const have = new Set(all().map((s) => s.h));
+  const fresh = pasted.filter((s) => !have.has(s.h));
+  $('pasteEmpty').hidden = pasted.length > 0;
+  $('pasteFound').hidden = !pasted.length;
+  $('pasteCount').textContent = `${pasted.length} sentence${pasted.length === 1 ? '' : 's'} found`;
+  $('pasteList').innerHTML = pasted.map((s) => `<div class="paste-row${have.has(s.h) ? ' dup' : ''}"><span class="item-han" lang="${L().html}"></span><span class="item-pin"></span></div>`).join('');
+  [...$('pasteList').children].forEach((row, i) => {
+    const s = pasted[i];
+    row.children[0].textContent = s.h;
+    row.children[1].textContent = have.has(s.h) ? 'Already in your sentences' : (s.p || s.e);
+  });
+  $('pasteNote').textContent = pasted.length ? (fresh.length < pasted.length ? 'Sentences you already have are skipped.' : 'They go to the top of Practice, in this order.') : PASTE_NOTE();
+  $('saveAdd').textContent = fresh.length ? `Add ${fresh.length} sentence${fresh.length === 1 ? '' : 's'}` : 'Add';
+  $('saveAdd').disabled = !fresh.length;
+}
+function takePaste(text) {
+  const found = parseLesson(text || '');
+  if (!found.length) {
+    $('pasteNote').textContent = `No sentences found. Copy Claude's whole answer and try again.`;
+    return false;
+  }
+  pasted = found; $('pasteBox').value = ''; $('pasteBox').hidden = true; showPasted();
+  return true;
+}
+async function readClipboard() {
+  try {
+    const t = await navigator.clipboard.readText();
+    if (takePaste(t)) return;
+  } catch (e) {}
+  // Some browsers do not let the page read the clipboard. Then you paste into the box yourself.
+  $('pasteBox').hidden = false; $('pasteBox').focus();
+  if (!$('pasteNote').textContent.startsWith('No sentences')) $('pasteNote').textContent = 'Touch and hold the box, then choose Paste.';
+}
+$('pasteBtn').onclick = readClipboard;
+$('pasteBox').oninput = () => { if ($('pasteBox').value.trim()) takePaste($('pasteBox').value); };
+$('pasteAgain').onclick = () => { pasted = []; showPasted(); readClipboard(); };
+function addPasted() {
+  const have = new Set(all().map((s) => s.h));
+  const fresh = pasted.filter((s) => !have.has(s.h));
+  if (!fresh.length) return;
+  all().unshift(...fresh);
+  pasted = [];
+  stop(); idx = 0; state.cur[state.lang] = fresh[0].h; render(); renderList();
+  closeAllSheets();
+  lastLearned = null;
+  showToast(`${fresh.length} sentence${fresh.length === 1 ? '' : 's'} added`, false, { label: 'Practice', fn: () => showTab('practice') });
+}
 
 /* Settings */
 function syncSeg(id, val) { [...$(id).children].forEach((b) => b.classList.toggle('on', String(b.dataset.v) === String(val))); }
