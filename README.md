@@ -1,6 +1,6 @@
 # SaySay
 
-Say it, then say it back. SaySay is a calm shadowing app for practicing speaking, starting with Chinese and Spanish. Each sentence plays twice, then pauses so you can say it out loud. When you can say it easily, tap Got it and it moves to Learned.
+Say it, then say it back. SaySay is a calm shadowing and flashcard app for practicing speaking, starting with Chinese and Spanish. Each sentence plays twice, then pauses so you can say it out loud. When you can say it easily, tap Got it and it moves to Learned.
 
 **Try it** at https://yeochoi.github.io/saysay/
 
@@ -11,6 +11,7 @@ On iPhone, open the link in Safari, tap Share, then Add to Home Screen.
 - **Pick a language.** Chinese with pinyin, or Spanish from Latin America or Spain. Each keeps its own sentences and progress.
 - **Practice.** Play reads each sentence twice, then waits while you repeat it.
 - **Add your own.** Type a sentence and pinyin and the translation fill in for you, into English, Chinese or Korean.
+- **Flashcards.** A separate word list. See the meaning, say it, then flip to see and hear the answer. Mark learned moves a card to Learned.
 - **Keep it short.** Got it moves what you know to Learned, so the practice list stays focused.
 
 Sentences stay on your device. The voice is the one built into your phone or computer.

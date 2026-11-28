@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Quicksand:wght@700&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@500&display=swap">
-<link rel="stylesheet" href="design-system/tokens.css?v=202611271906">
+<link rel="stylesheet" href="design-system/tokens.css?v=202611281630">
 <style>
 /* Colours, type and sizes come from design-system/tokens.css. Only app values live here. */
 :root {
@@ -406,7 +406,7 @@ select {
 .tab { width: 96px; height: 52px; border: 0; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 11px; font-weight: 400; color: var(--muted); }
 .tab.on { color: var(--accent-text); font-weight: 500; }
 .tab:focus-visible, .show-eng:focus-visible, .got:focus-visible, .play:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-.toast { bottom: calc(var(--bottom) + 72px); }
+.toast { bottom: calc(var(--bottom) + 200px); }
 @media (max-width: 899px) and (max-height: 720px) { .controls { padding-bottom: 8px; } }
 @media (min-width: 900px) {
   #sentenceView { min-height: clamp(240px, 40dvh, 340px); padding: 0; }
@@ -481,6 +481,65 @@ select {
 .paste-row:first-child { border-top: 0; }
 .paste-row .item-han { font-weight: 400; }
 .paste-row.dup { opacity: 0.5; }
+
+/* Recall. The translation shows first, you say it, then check. Same calm screen as Practice. */
+.tab { width: auto; flex: 1 1 0; }
+.rc-in { flex: 1; min-height: 0; display: flex; flex-direction: column; width: 100%; padding: calc(var(--top) + 14px) var(--gutter) 0; }
+.rc-view { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow-y: auto; }
+.rc-view .sent-body { margin: auto 0; }
+.rc-prompt { font-size: 34px; line-height: 42px; font-weight: 300; letter-spacing: -0.02em; color: var(--ink); }
+.rc-prompt[hidden], .rc-view .han[hidden], .rc-view .pin[hidden], .rc-view .eng[hidden], .rc-ctrl[hidden] { display: none !important; }
+.rc-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) 56px; gap: 10px; align-items: center; }
+.rc-row .nav { width: 56px; height: 56px; }
+#rcPlay[hidden], #rcGot[hidden] { display: none !important; }
+.pin-row { display: flex; align-items: center; gap: 4px; margin-top: 14px; }
+.pin-row .pin { margin-top: 0; }
+.rc-play { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin: -8px 0; border: 0; border-radius: 999px; background: none; color: var(--accent-text); flex-shrink: 0; }
+.rc-play:hover { background: var(--chip); }
+.rc-play:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.rc-g { flex-direction: column; gap: 0; line-height: 20px; }
+.rc-g small { font-size: 13px; line-height: 16px; font-weight: 400; color: var(--muted); }
+
+.rc-cue { margin-top: 18px; font-size: 17px; line-height: 24px; color: var(--muted); }
+.rc-view .han { margin-top: 0; cursor: pointer; }
+.rc-ctrl { width: 100%; padding: 16px var(--gutter) 8px; }
+.recall-empty .rc-prompt { font-size: 28px; line-height: 34px; }
+.recall-empty .card-edit { visibility: hidden; }
+@media (min-width: 900px) {
+  .rc-in { padding-top: 24px; }
+  .rc-view { flex: none; min-height: clamp(240px, 40dvh, 340px); }
+  .rc-prompt { font-size: 44px; line-height: 52px; }
+}
+.tv-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.hero .top .round, .rc-in .top .round { width: 40px; height: 40px; }
+#editCur[hidden] { display: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+.chips .show-eng { margin-top: 0; }
+.got-chip { display: inline-flex; align-items: center; gap: 6px; }
+
+.rc-row .nav:disabled { color: var(--chevron); }
+.eng-row { display: block; margin-top: 14px; padding: 6px 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; width: 100%; line-height: 26px; }
+.eng-row[hidden] { display: none; }
+.eng-row:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; border-radius: 8px; }
+.eye { display: inline-block; vertical-align: -3px; margin-right: 8px; color: var(--chevron); }
+.eye svg { display: inline-block; }
+/* Hidden English is a quiet eye and the word English. Tap to see the sentence. */
+.eng-row .eng { display: inline; margin: 0; min-height: 0; border-radius: 6px; padding: 1px 0;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone; transition: color 0.25s, background-color 0.25s; }
+.eng.masked { display: none; }
+.eng-label { font-size: 15px; color: var(--chevron); }
+.eng-label[hidden] { display: none; }
+.chips .got-chip { margin-top: 0; }
+/* The red button leads, full width. Under it, previous and next with Mark learned between them. Same on both screens. */
+.main-btn { width: 100%; }
+.rc-row2 { display: grid; grid-template-columns: 48px minmax(0, 1fr) 48px; gap: 10px; align-items: center; margin-top: 8px; }
+.rc-row2 .nav { width: 48px; height: 48px; }
+.rc-row2 .nav:disabled { color: var(--chevron); }
+.learn-btn { width: 100%; height: 48px; border: 0; border-radius: 999px; background: var(--chip); color: var(--ink); font: inherit; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.learn-btn:hover { background: var(--line); }
+.learn-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+#rcGot[hidden] { display: none !important; }
 </style>
 </head>
 <body>
@@ -490,7 +549,8 @@ select {
   <div class="wrap">
     <div class="top">
       <div class="count" id="count">1 of 27</div>
-      <button class="card-edit" id="editCur">Edit</button>
+      <button class="card-edit" id="editCur" hidden>Edit</button>
+      <button class="round" id="openList" aria-label="Sentences"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
     </div>
     <div class="bar" id="status">
       <div class="bar-track" aria-hidden="true"><span class="bar-seg"><i id="fillListen"></i></span><span class="bar-seg"><i id="fillTurn"></i></span></div>
@@ -500,8 +560,11 @@ select {
       <div class="sent-body">
         <div class="han" id="han"></div>
         <div class="pin" id="pin"></div>
-        <button class="show-eng" id="showEng" type="button">Show English</button>
-        <div class="eng" id="eng" hidden></div>
+        <button class="eng-row" id="engRow" type="button">
+          <span class="eye" id="showEng" aria-hidden="true"></span>
+          <span class="eng-label" id="engLabel">English</span>
+          <span class="eng" id="eng"></span>
+        </button>
       </div>
     </div>
   </div>
@@ -509,15 +572,14 @@ select {
 
 <main class="controls">
   <div class="wrap" id="practiceControls">
-    <div class="row-ctrl">
-      <button class="play" id="play">
+    <button class="play main-btn" id="play">
         <svg id="playIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>
         <span id="playLabel">Play</span>
       </button>
-      <button class="got" id="got">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-        Mark learned
-      </button>
+    <div class="rc-row2">
+      <button class="nav" id="pPrev" aria-label="Previous sentence"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="learn-btn" id="got" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Mark learned</button>
+      <button class="nav" id="pNext" aria-label="Next sentence"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
     </div>
     <div class="got-note" id="gotNote" hidden></div>
     <div class="key-hint" id="keyHint"><span><kbd>Space</kbd> Play</span><span><kbd>←</kbd><kbd>→</kbd> Move</span><span><kbd>Enter</kbd> Mark learned</span></div>
@@ -527,10 +589,47 @@ select {
     <div class="got-note" id="emptyNote">Or open Learned in the list to practice one again.</div>
   </div>
 </main>
+<section class="tabview" id="viewRecall" hidden aria-label="Flashcards">
+  <div class="wrap rc-in">
+    <div class="top">
+      <div class="count" id="rcCount"></div>
+      <button class="round" id="rcList" aria-label="Cards"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
+    </div>
+    <div class="rc-view">
+      <div class="sent-body">
+        <div class="rc-prompt" id="rcPrompt"></div>
+        <div class="han" id="rcHan" hidden></div>
+        <div class="pin-row"><div class="pin" id="rcPin" hidden></div><button class="rc-play" id="rcPlay" type="button" aria-label="Play sound" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></button></div>
+        <div class="eng" id="rcEng" hidden></div>
+        <div class="rc-cue" id="rcCue"></div>
+      </div>
+    </div>
+  </div>
+  <div class="wrap rc-ctrl">
+    <button class="play main-btn" id="rcShow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg><span id="rcShowLabel">Flip</span></button>
+    <div class="rc-row2">
+      <button class="nav" id="rcPrev" aria-label="Previous card"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="learn-btn" id="rcGot" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Mark learned</button>
+      <button class="nav" id="rcNext" aria-label="Next card"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <div class="key-hint"><span><kbd>Space</kbd> Flip</span><span><kbd>←</kbd><kbd>→</kbd> Move</span></div>
+  </div>
+</section>
 <section class="tabview" id="viewSentences" hidden aria-labelledby="sentTitle">
   <div class="wrap tv-in">
-    <div class="tv-head"><h1 class="tv-title" id="sentTitle">Sentences</h1><span id="sentAddSlot"></span></div>
+    <div class="tv-head"><div class="tv-left"><button class="navbtn" id="sentBack" aria-label="Back to Shadow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><h1 class="tv-title" id="sentTitle">Sentences</h1></div><span id="sentAddSlot"></span></div>
     <div class="tv-body" id="sentBody"></div>
+  </div>
+</section>
+<section class="tabview" id="viewCards" hidden aria-labelledby="cardsTitle">
+  <div class="wrap tv-in">
+    <div class="tv-head"><div class="tv-left"><button class="navbtn" id="cardsBack" aria-label="Back to Flashcards"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><h1 class="tv-title" id="cardsTitle">Cards</h1></div>
+      <button class="add-round" id="addCard" aria-label="Add card"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
+    <div class="tv-body" id="cardsBody">
+      <div class="seg" id="cardTabs"><button data-t="practice" class="on">Practice</button><button data-t="learned">Learned</button></div>
+      <div style="height:16px"></div>
+      <div id="cardRows"></div>
+    </div>
   </div>
 </section>
 <section class="tabview" id="viewSettings" hidden aria-labelledby="setTitle">
@@ -541,8 +640,8 @@ select {
 </section>
 <nav class="tabbar" aria-label="Main">
   <div class="wrap tabbar-in">
-    <button class="tab on" id="tabPractice" aria-current="page"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg>Practice</button>
-    <button class="tab" id="openList"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Sentences</button>
+    <button class="tab on" id="tabPractice" aria-current="page"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg>Shadow</button>
+    <button class="tab" id="tabRecall"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/></svg>Flashcards</button>
     <button class="tab" id="openSettings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Settings</button>
   </div>
 </nav>
@@ -796,7 +895,7 @@ select {
   </div>
 </div>
 
-<script src="vendor/pinyin-pro.js?v=202611271906"></script>
+<script src="vendor/pinyin-pro.js?v=202611281630"></script>
 <script>
 /* Languages you can practice. Adding one later is mostly a new entry here and its starter sentences. */
 const LANGS = {
@@ -901,10 +1000,18 @@ let playing = false, runId = 0, lastLearned = null, toastTimer = null;
 function syncIdx() { idx = Math.max(0, practice().findIndex((s) => s.h === state.cur[state.lang])); }
 
 let engFor = null;
+/* English sits under the sentence, blurred like a password. The eye, or the line itself, shows it. */
+const EYE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.6 5.1A10.9 10.9 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2.7 3.6M6.6 6.6C3.7 8.5 2 12 2 12s3.5 7 10 7a10 10 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="M3 3l18 18"/></svg>';
+let engOn = false;
 function setEng(on) {
-  $('eng').hidden = !on;
-  $('showEng').textContent = on ? `Hide ${T().en}` : `Show ${T().en}`;
-  $('showEng').setAttribute('aria-expanded', on ? 'true' : 'false');
+  engOn = on;
+  $('eng').classList.toggle('masked', !on);
+  $('engLabel').hidden = on; $('engLabel').textContent = T().en;
+  $('eng').setAttribute('aria-hidden', on ? 'false' : 'true');
+  $('showEng').innerHTML = on ? EYE : EYE_OFF;
+  $('engRow').setAttribute('aria-label', on ? `Hide ${T().en}` : `Show ${T().en}`);
+  $('engRow').setAttribute('aria-pressed', on ? 'true' : 'false');
 }
 function render() {
   document.body.classList.toggle('lang-es', state.lang === 'es');
@@ -944,8 +1051,11 @@ function render() {
   $('gotNote').textContent = n ? `${n} learned so far` : 'Mark learned when you can say it easily';
   // English stays hidden until you ask, so you try to understand first. A new sentence hides it again.
   const shown = s ? s.h : '';
-  if (shown !== engFor) { engFor = shown; setEng(false); } else setEng(!$('eng').hidden);
-  $('showEng').hidden = empty || !$('eng').textContent;
+  if (shown !== engFor) { engFor = shown; setEng(false); } else setEng(engOn);
+  $('engRow').hidden = empty || !$('eng').textContent;
+  $('pPrev').disabled = empty || idx === 0;
+  $('pNext').disabled = empty || idx >= list.length - 1;
+  if (typeof curTab !== 'undefined' && curTab === 'recall') renderRecall();
   save();
 }
 
@@ -1078,7 +1188,9 @@ function go(step) {
   if (to < 0 || to > practice().length - 1) return;
   const was = playing; stop(); idx = to; render(); if (was) run();
 }
-$('showEng').onclick = () => setEng($('eng').hidden);
+$('engRow').onclick = () => setEng(!engOn);
+$('pPrev').onclick = () => go(-1);
+$('pNext').onclick = () => go(1);
 /* Swipe left or right on the sentence to move, like turning a page. */
 (() => {
   let x0 = null, y0 = 0;
@@ -1136,13 +1248,19 @@ function showTab(name) {
   curTab = name;
   $('hero').hidden = name !== 'practice';
   document.querySelector('.controls').hidden = name !== 'practice';
+  $('viewRecall').hidden = name !== 'recall';
+  if (name === 'recall') renderRecall(); else rcStop();
   $('viewSentences').hidden = name !== 'sentences';
+  $('viewCards').hidden = name !== 'cards';
+  if (name === 'cards') { renderCardList(); $('cardsBody').scrollTop = 0; }
   $('viewSettings').hidden = name !== 'settings';
-  [['tabPractice', 'practice'], ['openList', 'sentences'], ['openSettings', 'settings']].forEach(([id, n]) => {
-    $(id).classList.toggle('on', n === name);
-    if (n === name) $(id).setAttribute('aria-current', 'page'); else $(id).removeAttribute('aria-current');
+  // Sentences belong to Shadow and Cards to Flashcards, so their tab stays lit.
+  [['tabPractice', ['practice', 'sentences']], ['tabRecall', ['recall', 'cards']], ['openSettings', ['settings']]].forEach(([id, ns]) => {
+    const on = ns.includes(name);
+    $(id).classList.toggle('on', on);
+    if (on) $(id).setAttribute('aria-current', 'page'); else $(id).removeAttribute('aria-current');
   });
-  if (name !== 'practice') { const v = name === 'sentences' ? $('viewSentences') : $('viewSettings'); v.querySelector('.tv-body').scrollTop = 0; placeThumbs(v); }
+  if (name === 'sentences' || name === 'settings') { const v = name === 'sentences' ? $('viewSentences') : $('viewSettings'); v.querySelector('.tv-body').scrollTop = 0; placeThumbs(v); }
 }
 function open(id) {
   if (TAB_OF[id]) { showTab(TAB_OF[id]); return; }
@@ -1394,17 +1512,25 @@ function formMode(edit, fromList) {
   $('engLabel').textContent = `${T().en}, optional`;
   $('inEng').lang = T().html;
   $('addNote').textContent = edit ? editNote() : addNote();
-  $('addModeSeg').hidden = edit;
+  $('addModeSeg').hidden = edit || formFor === 'cards';
+  if (formFor === 'cards') {
+    $('formTitle').textContent = edit ? 'Edit card' : 'New card';
+    $('addNote').textContent = edit ? 'Clear the pinyin or meaning to fill it in again.' : `Type the ${L().en} and the rest fills in for you.`;
+    $('deleteOne').textContent = 'Delete card';
+  } else $('deleteOne').textContent = 'Delete sentence';
   setAddMode('one');
 }
-function openAdd() {
+let formFor = 'sentences';
+function openAdd(kind) {
+  formFor = kind === 'cards' ? 'cards' : 'sentences';
   editing = null; editFromList = false; formMode(false, false);
   ['inHan', 'inPin', 'inEng'].forEach((i) => $(i).value = '');
   pinEdited = engEdited = false; transRun++;
   $('saveAdd').disabled = true; open('addSheet'); setTimeout(() => $('inHan').focus(), 250);
 }
-function openEdit(s, fromList) {
+function openEdit(s, fromList, kind) {
   if (!s) return;
+  formFor = kind === 'cards' ? 'cards' : 'sentences';
   stop(); editing = s; editFromList = !!fromList; formMode(true, editFromList);
   $('inHan').value = s.h; $('inPin').value = s.p || ''; $('inEng').value = tx(s);
   // Saved pinyin and translation stay until the sentence changes.
@@ -1417,6 +1543,14 @@ $('formNav').onclick = closeForm;
 $('editCur').onclick = () => openEdit(practice()[idx], false);
 $('deleteOne').onclick = () => {
   const s = editing; if (!s) return;
+  if (formFor === 'cards') {
+    // No confirm. Undo in the toast brings it back.
+    const list = cardList(), at = list.indexOf(s);
+    list.splice(at, 1); editing = null; save();
+    renderCardList(); renderRecall(); closeAllSheets();
+    showToast('Card deleted', false, { label: 'Undo', fn: () => { list.splice(at, 0, s); save(); renderCardList(); renderRecall(); } });
+    return;
+  }
   if (!confirm(`Delete this sentence?\n\n${s.h}\n\nThis can't be undone.`)) return;
   stop(); all().splice(all().indexOf(s), 1); editing = null; render();
   closeForm(); if (!editFromList) showToast('Sentence deleted');
@@ -1469,6 +1603,16 @@ $('inHan').oninput = () => {
 $('inPin').oninput = () => { pinEdited = $('inPin').value.trim() !== ''; };
 $('inEng').oninput = () => { engEdited = $('inEng').value.trim() !== ''; };
 $('saveAdd').onclick = () => {
+  if (formFor === 'cards') {
+    transRun++; clearTimeout(transTimer);
+    const h = $('inHan').value.trim(); if (!h) return;
+    const c = editing || { tl: state.target };
+    c.h = h; c.p = L().pinyin ? $('inPin').value.trim() : ''; c.e = $('inEng').value.trim(); c.tl = c.tl || state.target;
+    if (!editing) { cardList().unshift(c); rcI = 0; rcFlipped = false; }
+    editing = null; save(); renderCardList(); renderRecall(); closeAllSheets();
+    showToast(c.e ? 'Card saved' : 'Saved. Add a meaning so it shows as a card');
+    return;
+  }
   if (addMode === 'paste') return addPasted();
   transRun++; clearTimeout(transTimer);
   const h = $('inHan').value.trim(); if (!h) return;
@@ -1501,7 +1645,7 @@ function setAddMode(m) {
   syncSeg('addModeSeg', m);
   $('onePane').hidden = m !== 'one';
   $('pastePane').hidden = m !== 'paste';
-  $('formTitle').textContent = editing ? 'Edit sentence' : (m === 'paste' ? 'New sentences' : 'New sentence');
+  $('formTitle').textContent = formFor === 'cards' ? (editing ? 'Edit card' : 'New card') : editing ? 'Edit sentence' : (m === 'paste' ? 'New sentences' : 'New sentence');
   if (m === 'paste') { showPasted(); }
   else { $('saveAdd').textContent = editing ? 'Save' : 'Add'; $('saveAdd').disabled = !$('inHan').value.trim(); }
   placeThumb($('addModeSeg'), true);
@@ -1581,7 +1725,7 @@ function addPasted() {
   stop(); idx = 0; state.cur[state.lang] = fresh[0].h; render(); renderList();
   closeAllSheets();
   lastLearned = null;
-  showToast(`${fresh.length} sentence${fresh.length === 1 ? '' : 's'} added`, false, { label: 'Practice', fn: () => showTab('practice') });
+  showToast(`${fresh.length} sentence${fresh.length === 1 ? '' : 's'} added`, false, { label: 'Shadow', fn: () => showTab('practice') });
 }
 
 /* Settings */
@@ -1715,7 +1859,107 @@ $('dsBack').onclick = () => { close('dsSheet'); open('setSheet'); };
   $('sentAddSlot').append(add);
   $('listSheet').remove(); $('setSheet').remove();
   $('tabPractice').onclick = () => showTab('practice');
+  $('tabRecall').onclick = () => { rcFlipped = false; showTab('recall'); };
 })();
+/* Recall. A flashcard. The meaning shows first, you say it in the language, then flip to see and hear it. */
+let rcI = 0, rcFlipped = false, deckLang = null;
+const canRecall = (s) => !!(tx(s) || '').trim();
+if (!state.cards || typeof state.cards !== 'object') state.cards = {};
+const cardList = () => (state.cards[state.lang] = state.cards[state.lang] || []);
+const cards = () => cardList().filter((c) => canRecall(c) && !c.l);
+function buildDeck() { if (deckLang !== state.lang) { rcI = 0; deckLang = state.lang; } rcFlipped = false; }
+function renderRecall() {
+  if (deckLang !== state.lang) buildDeck();
+  const list = cards();
+  if (rcI >= list.length) rcI = Math.max(0, list.length - 1);
+  const s = list[rcI], v = $('viewRecall');
+  v.classList.toggle('recall-empty', !s);
+  $('rcHan').lang = L().html;
+  if (!s) {
+    $('rcCount').textContent = '';
+    const anyLearned = cardList().some((c) => c.l);
+    $('rcPrompt').hidden = false; $('rcPrompt').lang = 'en'; $('rcPrompt').textContent = anyLearned ? 'All learned' : 'No cards yet';
+    $('rcHan').hidden = $('rcPin').hidden = $('rcEng').hidden = true; $('rcPlay').hidden = true; $('rcGot').hidden = true;
+    $('rcCue').textContent = anyLearned ? 'Open the list to add cards or practice one again.' : 'Tap the list button to add words from your lesson.';
+    v.querySelector('.rc-ctrl').hidden = true;
+    return;
+  }
+  v.querySelector('.rc-ctrl').hidden = false; $('rcGot').hidden = false;
+  $('rcCount').textContent = `${rcI + 1} of ${list.length}`;
+  $('rcPrompt').hidden = rcFlipped;
+  $('rcPrompt').textContent = tx(s); $('rcPrompt').lang = txLang(s);
+  $('rcHan').hidden = !rcFlipped; $('rcHan').textContent = s.h;
+  const len = [...s.h].length, [a, b] = L().long;
+  $('rcHan').classList.toggle('long1', len > a && len <= b);
+  $('rcHan').classList.toggle('long2', len > b);
+  $('rcPin').hidden = !rcFlipped || !L().pinyin || !s.p; $('rcPin').textContent = s.p || '';
+  $('rcEng').hidden = !rcFlipped; $('rcEng').textContent = tx(s); $('rcEng').lang = txLang(s);
+  $('rcCue').textContent = rcFlipped ? '' : `Say it in ${L().en}, then flip.`;
+  $('rcPlay').hidden = !rcFlipped || !canSpeak;
+  $('rcShowLabel').textContent = rcFlipped ? `Back to ${T().en}` : `Flip to ${L().en}`;
+  $('rcPrev').disabled = rcI === 0;
+  $('rcNext').disabled = rcI >= list.length - 1;
+}
+function rcStop() { if (canSpeak && !playing) speechSynthesis.cancel(); }
+function rcSay() {
+  const s = cards()[rcI]; if (!s || !canSpeak) return;
+  stop(); speechSynthesis.cancel();
+  speak(s.h, ++runId);
+}
+function rcFlip() { if (!cards()[rcI]) return; rcFlipped = !rcFlipped; renderRecall(); if (rcFlipped) rcSay(); else rcStop(); }
+function rcGo(step) {
+  const to = rcI + step; if (to < 0 || to > cards().length - 1) return;
+  rcStop(); rcI = to; rcFlipped = false; renderRecall();
+}
+$('rcShow').onclick = rcFlip;
+$('rcPrev').onclick = () => rcGo(-1);
+$('rcPlay').onclick = (e) => { e.stopPropagation(); rcSay(); };
+$('rcNext').onclick = () => rcGo(1);
+/* The card list. Tap a card to change or delete it, + adds a new one. */
+let cardTab = 'practice';
+function renderCardList() {
+  const all_ = cardList(), act = all_.filter((c) => !c.l), done = all_.filter((c) => c.l);
+  $('cardTabs').children[0].textContent = `Practice ${act.length}`;
+  $('cardTabs').children[1].textContent = `Learned ${done.length}`;
+  [...$('cardTabs').children].forEach((b) => b.classList.toggle('on', b.dataset.t === cardTab));
+  placeThumb($('cardTabs'));
+  const items = cardTab === 'practice' ? act : done;
+  if (!items.length) {
+    $('cardRows').innerHTML = `<div class="list-note">${cardTab === 'practice' ? (all_.length ? 'All cards learned. Tap + to add more.' : 'No cards yet. Tap + to add a word from your lesson.') : 'Tap Mark learned on a card you know. It moves here.'}</div>`;
+    return;
+  }
+  $('cardRows').innerHTML = '<div class="rows">' + items.map((c) => {
+    const i = all_.indexOf(c);
+    const back = cardTab === 'learned' ? `<button class="chip-btn" data-cback="${i}">Practice again</button>` : '';
+    return `<div class="item"><button class="item-main" data-card="${i}"><span class="item-text"><span class="item-han" lang="${L().html}">${esc(c.h)}</span><span class="item-pin">${esc(L().pinyin ? [c.p, tx(c)].filter(Boolean).join('  ·  ') : tx(c))}</span></span>${back ? '' : `<span class="row-end">${CHEV_RIGHT}</span>`}</button>${back}</div>`;
+  }).join('') + '</div>';
+}
+$('cardTabs').onclick = (e) => { const b = e.target.closest('button'); if (b) { cardTab = b.dataset.t; renderCardList(); } };
+$('cardsBody').onclick = (e) => {
+  const back = e.target.closest('[data-cback]');
+  if (back) { const c = cardList()[+back.dataset.cback]; c.l = false; save(); renderCardList(); renderRecall(); showToast('Back in Practice'); return; }
+  const b = e.target.closest('[data-card]'); if (b) openEdit(cardList()[+b.dataset.card], true, 'cards');
+};
+$('rcList').onclick = () => { cardTab = 'practice'; showTab('cards'); };
+$('rcGot').onclick = () => {
+  const c = cards()[rcI]; if (!c) return;
+  rcStop(); c.l = true; rcFlipped = false; save(); renderRecall();
+  showToast('Moved to Learned', false, { label: 'Undo', fn: () => { c.l = false; rcI = Math.max(0, cards().indexOf(c)); save(); renderRecall(); } });
+};
+$('cardsBack').onclick = () => showTab('recall');
+$('addCard').onclick = () => openAdd('cards');
+$('sentBack').onclick = () => showTab('practice');
+(() => {
+  let x0 = null, y0 = 0;
+  const el = $('viewRecall').querySelector('.rc-in');
+  el.addEventListener('touchstart', (e) => { if (e.touches.length !== 1) return; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  el.addEventListener('touchend', (e) => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) rcGo(dx < 0 ? 1 : -1);
+  });
+})();
+
 /* Keyboard on laptops. Space plays or pauses, arrows move, Enter is Mark learned, Escape closes a sheet. */
 document.addEventListener('keydown', (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -1727,6 +1971,12 @@ document.addEventListener('keydown', (e) => {
     else if (openSheet.id === 'dsSheet') $('dsBack').click();
     else if (openSheet.id === 'langSheet') $('langBack').click();
     else close(openSheet.id);
+    return;
+  }
+  if (!openSheet && curTab === 'recall' && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) {
+    if (e.key === ' ' || e.code === 'Space' || e.key === 'Enter') { e.preventDefault(); rcFlip(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); rcGo(1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); rcGo(-1); }
     return;
   }
   if (openSheet || curTab !== 'practice' || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
